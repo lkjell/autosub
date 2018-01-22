@@ -21,7 +21,7 @@ setup(
         'google-api-python-client>=1.4.2',
         'requests>=2.3.0',
         'pysrt>=1.0.1',
-        'progressbar>=2.3'
+        'progressbar2'
     ],
     license=open("LICENSE").read()
 )

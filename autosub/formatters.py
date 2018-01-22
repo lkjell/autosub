@@ -4,7 +4,7 @@ import json
 
 import pysrt
 
-text_type = unicode if sys.version_info < (3,) else str
+text_type = str if sys.version_info < (3,) else str
 
 
 def force_unicode(s, encoding="utf-8"):
@@ -23,7 +23,7 @@ def srt_formatter(subtitles, show_before=0, show_after=0):
         item.start.seconds = max(0, start - show_before)
         item.end.seconds = end + show_after
         f.append(item)
-    return '\n'.join(map(unicode, f))
+    return '\n'.join(map(str, f))
 
 def vtt_formatter(subtitles, show_before=0, show_after=0):
     text = srt_formatter(subtitles, show_before, show_after)
@@ -31,11 +31,11 @@ def vtt_formatter(subtitles, show_before=0, show_after=0):
     return text
 
 def json_formatter(subtitles):
-    subtitle_dicts = map(lambda (r, t): {'start': r[0], 'end': r[1], 'content': t}, subtitles)
+    subtitle_dicts = [{'start': r_t[0][0], 'end': r_t[0][1], 'content': r_t[1]} for r_t in subtitles]
     return json.dumps(subtitle_dicts)
 
 def raw_formatter(subtitles):
-    return ' '.join(map(lambda (rng, text): text, subtitles))
+    return ' '.join([rng_text[1] for rng_text in subtitles])
 
 FORMATTERS = {
     'srt': srt_formatter,

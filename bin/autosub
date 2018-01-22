@@ -75,7 +75,8 @@ class SpeechRecognizer(object):
                 except requests.exceptions.ConnectionError:
                     continue
 
-                for line in resp.content.split("\n"):
+                content = resp.content
+                for line in content.split(b"\n"):
                     try:
                         line = json.loads(line)
                         line = line['result'][0]['alternative'][0]['transcript']
@@ -134,10 +135,10 @@ def which(program):
 def extract_audio(filename, channels=1, rate=16000):
     temp = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
     if not os.path.isfile(filename):
-        print "The given file does not exist: {0}".format(filename)
+        print("The given file does not exist: {0}".format(filename))
         raise Exception("Invalid filepath: {0}".format(filename))
     if not which("ffmpeg"):
-        print "ffmpeg: Executable not found on machine."
+        print("ffmpeg: Executable not found on machine.")
         raise Exception("Dependency not found: ffmpeg")
     command = ["ffmpeg", "-y", "-i", filename, "-ac", str(channels), "-ar", str(rate), "-loglevel", "error", temp.name]
     use_shell = True if os.name == "nt" else False
@@ -200,25 +201,25 @@ def main():
 
     if args.list_formats:
         print("List of formats:")
-        for subtitle_format in FORMATTERS.keys():
-            print("{format}".format(format=subtitle_format))
+        for subtitle_format in list(FORMATTERS.keys()):
+            print(("{format}".format(format=subtitle_format)))
         return 0
 
     if args.list_languages:
         print("List of all languages:")
         for code, language in sorted(LANGUAGE_CODES.items()):
-            print("{code}\t{language}".format(code=code, language=language))
+            print(("{code}\t{language}".format(code=code, language=language)))
         return 0
 
-    if args.format not in FORMATTERS.keys():
+    if args.format not in list(FORMATTERS.keys()):
         print("Subtitle format not supported. Run with --list-formats to see all supported formats.")
         return 1
 
-    if args.src_language not in LANGUAGE_CODES.keys():
+    if args.src_language not in list(LANGUAGE_CODES.keys()):
         print("Source language not supported. Run with --list-languages to see all supported languages.")
         return 1
 
-    if args.dst_language not in LANGUAGE_CODES.keys():
+    if args.dst_language not in list(LANGUAGE_CODES.keys()):
         print(
             "Destination language not supported. Run with --list-languages to see all supported languages.")
         return 1
@@ -269,15 +270,15 @@ def main():
                     pbar.finish()
                     transcripts = translated_transcripts
                 else:
-                    print "Error: Subtitle translation requires specified Google Translate API key. \
-                    See --help for further information."
+                    print("Error: Subtitle translation requires specified Google Translate API key. \
+                    See --help for further information.")
                     return 1
 
         except KeyboardInterrupt:
             pbar.finish()
             pool.terminate()
             pool.join()
-            print "Cancelling transcription"
+            print("Cancelling transcription")
             return 1
 
     timed_subtitles = [(r, t) for r, t in zip(regions, transcripts) if t]
@@ -293,7 +294,7 @@ def main():
     with open(dest, 'wb') as f:
         f.write(formatted_subtitles.encode("utf-8"))
 
-    print "Subtitles file created at {}".format(dest)
+    print("Subtitles file created at {}".format(dest))
 
     os.remove(audio_filename)
 
